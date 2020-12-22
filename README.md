@@ -1,4 +1,9 @@
-# fakecall [CLI Version]
-# Note : Just For Fun
-# How To Run?
-# Use Ur Brain!
+
+![GitHub last commit](https://img.shields.io/github/last-commit/ValentinNikolaev/fakecall)
+![visitors](https://visitor-badge.laobi.icu/badge?page_id=ValentinNikolaev.fakecall)
+### One-file fake call script for Grab.com [CLI Version, php 5.3+]
+### How To Run?
+``php
+php call.php +1-202-555-0113
+``
+
