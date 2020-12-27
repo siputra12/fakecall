@@ -2,10 +2,14 @@
 
 class PrankCall
 {
+
+    const GRAB_API = "https://api.grab.com/grabid/v1/phone/otp";
     /**
      * @var string $phone
      */
     private $phone;
+
+    private $supportedCountries = array("MY", "SG", "ID", "TH", "VN", "KH", "PH", "MM");
 
     /**
      * PrankCall constructor.
@@ -50,17 +54,19 @@ class PrankCall
         $iterations = 1
     ) {
         for ($i = 0; $i < $iterations; $i++) {
+            echo '--------------------- ' . ($i + 1) . ' --------------------' . PHP_EOL;
             try {
                 $result = $this->makeCall();
 
                 if (empty($result['challengeID'])) {
-                    echo "[$i] Failed: " . json_encode($result) . PHP_EOL;
+                    echo "Failed: " . json_encode($result) . PHP_EOL;
                 } else {
-                    echo "[$i] Success" . PHP_EOL;
+                    echo "Success" . PHP_EOL;
                 }
             } catch (\Exception $throwable) {
-                echo "[$i] Critical: " . $throwable->getMessage(). PHP_EOL;
+                echo "CRITICAL: " . $throwable->getMessage() . PHP_EOL;
             }
+
             sleep(1);
         }
     }
@@ -71,29 +77,34 @@ class PrankCall
      */
     private function makeCall()
     {
-        $androidVersion = "(Android " . mt_rand(5, 10) . "." . mt_rand(1, 5) . "." . mt_rand(
-                1,
-                6
-            ) . "; Build " . mt_rand(10000, 99999) . ")";
-        $post = "method=CALL&countryCode=id&phoneNumber=$this->phone&templateID=pax_android_production";
-        $headers[] = "x-request-id: " . $this->v4();
-        $headers[] = "Accept-Language: in-ID;q=1.0, en-us;q=0.9, en;q=0.8";
-        $headers[] = "User-Agent: Grab/5.20.0 $androidVersion";
-        $headers[] = "Content-Type: application/x-www-form-urlencoded";
-        $headers[] = "Content-Length: " . strlen($post);
-        $headers[] = "Host: api.grab.com";
-        $headers[] = "Connection: close";
+        $post = "method=CALL&countryCode=ID&phoneNumber=$this->phone&templateID=pax_android_production";
+
+        $headers = array(
+            "x-request-id: " . $this->v4(),
+            "Accept-Language: in-ID;q=1.0, en-us;q=0.9, en;q=0.8",
+            "User-Agent: Mozilla/5.0 (Linux; Android 7.1.2; AFTMM Build/NS6264; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/59.0.3071.125 Mobile Safari/537.36",
+            "Content-Type: application/x-www-form-urlencoded",
+            "Content-Length: " . strlen($post),
+            "Host: api.grab.com",
+        );
 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, "https://api.grab.com/grabid/v1/phone/otp");
+        curl_setopt($ch, CURLOPT_URL, self::GRAB_API);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_FAILONERROR, true);
+        curl_setopt($ch, CURLINFO_HEADER_OUT, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_VERBOSE, true);
         $x = curl_exec($ch);
 
         if ($x === false) {
+            $info = curl_getinfo($ch);
+            unset($info["request_header"]);
+            echo curl_getinfo($ch, CURLINFO_HEADER_OUT);
+            echo "INFO: " . json_encode($info) . PHP_EOL . PHP_EOL;
             throw new \Exception('Curl error: ' . curl_error($ch));
         }
 
@@ -159,6 +170,7 @@ class PrankCall
         );
     }
 }
+
 
 $call = new PrankCall();
 $call->run();
