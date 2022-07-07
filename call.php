@@ -79,7 +79,7 @@ class prankCall{
 		$data = "abcdefghijklmnopqrstuvwxyz1234567890";
 		$word = "";
 		for($a=0;$a<$l;$a++){
-			$word .= $data{rand(0,strlen($data)-1)};
+			$word .= $data[rand(0,strlen($data)-1)];
 		}
 		return $word;
 	}
