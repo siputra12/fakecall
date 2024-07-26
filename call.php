@@ -104,7 +104,7 @@ class prankCall{
 	}
 }
 echo "#################################\n# Copyright : @xptra | SGB-Team #\n#################################\n";
-echo "?Number			";
+echo "?Number		05370344908	";
 $no = get();
 $n = new prankCall($no);
 $n->run();
